@@ -1,0 +1,31 @@
+# Kodi Media Center language file
+# Addon Name: RTLXL
+# Addon id: plugin.video.rtlxl
+# Addon Provider: Opvolger
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#32001"
+msgid "Settings"
+msgstr "Instellingen"
+
+msgctxt "#32002"
+msgid "type stream"
+msgstr "soort stream"
+
+msgctxt "#32003"
+msgid "adaptive (no DRM 720p)"
+msgstr "adaptive (no DRM 720p)"
+
+msgctxt "#32004"
+msgid "progressive (no DRM SD)"
+msgstr "progressive (no DRM SD)"
+
+msgctxt "#32005"
+msgid "smooth (DRM 720p)"
+msgstr "smooth (DRM 720p)"
