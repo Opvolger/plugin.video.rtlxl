@@ -22,6 +22,11 @@ from operator import itemgetter, attrgetter
     http://www.rtl.nl/system/s4m/vfd/version=2/fun=abstract/d=pc/fmt=smooth/ak=340348/output=json/pg=1
     http://www.rtl.nl/system/s4m/vfd/version=2/uuid=1b10429e-7dd9-3506-b558-0a3de42bae1e/fmt=adaptive/output=json/
 
+    ## nieuwe api rtlxl
+    https://xlapi.rtl.nl/version=2/fun=az/model=svod
+    https://xlapi.rtl.nl/version=1/fun=progclasses/ak=426250
+    https://xlapi.rtl.nl/version=1/fun=progeps/ak=426250/model=svod/pg=1/sk=426308/sz=6
+
 '''
 import sys
 if (sys.version_info[0] == 3):
@@ -80,7 +85,9 @@ class RtlXL:
         cover_base_url = json_data['meta']['cover_base_url']
         for material in json_data['material']:
             rtlitem = { 'label': material['title'],
-                        'path': self.__movie_trans(material['uuid'], videotype),
+                        'uuid': material['uuid'],
+                        'videotype': videotype,
+                        #'path': self.movie_trans(material['uuid'], videotype),
                         'classname': material['classname'],
                         'art': {    'thumb': cover_base_url + material['image'],
                                     'icon':  cover_base_url + material['image'],
@@ -98,15 +105,12 @@ class RtlXL:
                             'mediatype': 'video'
                         }
             }
-            # user-agent en referer toevoegen.
-            rtlitem['path'] = rtlitem['path'] + '|Referer='+rtlitem['path']+'&User-Agent=Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0'
             for episode in json_data['episodes']:
-                if episode['key'] == material['episode_key'] and material['classname'] == 'uitzending':
-                    rtlitem['label'] = episode['name']
-            if (alles):
-                rtlitem['label'] = rtlitem['label'] + ' ('+material['classname']+')'
-            rtlitem['video']['title'] = rtlitem['label']
-            for episode in json_data['episodes']:
+                if episode['key'] == material['episode_key']:
+                    if material['classname'] == 'uitzending':
+                        rtlitem['label'] = episode['name'] # uitzendinggen hebben hier beter naam.
+                    if alles:
+                        rtlitem['label'] = rtlitem['label'] + ' ('+material['classname']+')'
                 # opzoeken juiste aflevering info
                 if episode['key'] == material['episode_key']:
                     # als we gernes hebben
@@ -123,15 +127,13 @@ class RtlXL:
                         # komma gescheiden weer opslaan in het item
                         # set ontdubbeld
                         rtlitem['video']['genre'] = ', '.join(list(set(genres)))
+            rtlitem['video']['title'] = rtlitem['label']
             if material['episode_key']:
                 rtlitemlist.append(rtlitem)
         return rtlitemlist
 
     def __is_uitzending(self, item):
         return item['classname'] == 'uitzending'
-
-    def __heeft_url(self, item):
-        return item['path']
 
     def get_categories(self, url):
         items = self.__items(url, True, 'adaptive')
@@ -163,7 +165,7 @@ class RtlXL:
         # req.add_header('Accept-Encoding', 'utf-8')
         return req
 
-    def __movie_trans(self, uuid, videotype):
+    def movie_trans(self, uuid, videotype):
         url = 'http://www.rtl.nl/system/s4m/vfd/version=2/fun=abstract/uuid=' + \
             uuid + '/fmt=' + videotype + '/output=json/'
         if videotype == 'progressive':
@@ -178,12 +180,11 @@ class RtlXL:
             return ''
         movie = json_data['meta']['videohost'] + \
             json_data['material'][0]['videopath']
-        return movie
+        #referer en user-agent als header meesturen (anders werkt het niet meer)
+        return movie + '|Referer='+movie+'&User-Agent=Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
     def get_items(self, url, alles, videotype):
         items = self.__items(url, alles, videotype)
-        # lege streams verwijderen
-        items = [item for item in items if self.__heeft_url(item)]
         if (alles):
             return items
         return [item for item in items if self.__is_uitzending(item)]

@@ -62,7 +62,7 @@ def router(paramstring):
             show_afleveringen(params['url'])
             setMediaView()
         elif params['action'] == 'play':
-            play_video(params['path'])
+            play_video(params['uuid'], params['videotype'])
         else:
             raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
     else:
@@ -130,16 +130,15 @@ def show_items(opgehaaldeitemsclass, category):
         list_item.setArt(item['art'])
         list_item.setInfo('video', item['video'])
         list_item.setProperty('IsPlayable', 'true')
-        pathparameter = item['path']
-        url = get_url(action='play', path=pathparameter)
+        url = get_url(action='play', uuid=item['uuid'], videotype=item['videotype'])
         is_folder = False
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_DATE)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.endOfDirectory(_handle)
 
-def play_video(path):
-    play_item = xbmcgui.ListItem(path=path)
+def play_video(uuid, videotype):
+    play_item = xbmcgui.ListItem(path=rtlxl.movie_trans(uuid, videotype))
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 
 if __name__ == '__main__':
