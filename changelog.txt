@@ -1,3 +1,6 @@
+Version 2.1.0
+Refactor and now faster!
+
 Version 2.0.0
 Kodi 17+ support + refactor.
 

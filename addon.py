@@ -9,16 +9,11 @@ import sys
 if (sys.version_info[0] == 3):
     # For Python 3.0 and later
     from urllib.parse import urlencode
-    from urllib.parse import parse_qsl
-    import storageserverdummy as StorageServer  
+    from urllib.parse import parse_qsl 
 else:
     # Fall back to Python 2's urllib2
     from urllib import urlencode
     from urlparse import parse_qsl
-    try:
-        import StorageServer
-    except:
-        import storageserverdummy as StorageServer
 
 import time
 import xbmcplugin, xbmcgui, xbmcaddon
@@ -30,7 +25,6 @@ rtlxl = resources.lib.rtlxl.RtlXL()
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
-_cache = StorageServer.StorageServer(PLUGIN_ID, 24) # (Your plugin name, Cache time in hours)
 _addon = xbmcaddon.Addon()
 
 # het in elkaar klussen van een url welke weer gebruikt word bij router
@@ -72,7 +66,7 @@ def router(paramstring):
 def list_overzicht():
     xbmcplugin.setPluginCategory(_handle, 'Lijst')
     xbmcplugin.setContent(_handle, 'videos')
-    overzicht = _cache.cacheFunction(rtlxl.get_overzicht)
+    overzicht = rtlxl.get_overzicht()
     # Alle mogelijke "begin" "letters"
     for item in overzicht:
         list_item = xbmcgui.ListItem(label=item['label'])
