@@ -24,6 +24,7 @@ from operator import itemgetter, attrgetter
 
     ## nieuwe api rtlxl
     https://xlapi.rtl.nl/version=2/fun=az/model=svod
+    https://xlapi.rtl.nl/version=1/fun=progeps/model=avod/ak=132237/pg=1/sz=20
     https://xlapi.rtl.nl/version=1/fun=progclasses/ak=426250
     https://xlapi.rtl.nl/version=1/fun=progeps/ak=426250/model=svod/pg=1/sk=426308/sz=6
 
@@ -57,6 +58,7 @@ class RtlXL:
         response.close()
         json_data = json.loads(jsonstring)
         rtlitemlist = list()
+        abstractKeylist = list()
         poster_base_url = json_data['meta']['poster_base_url']
         for serie in json_data['abstracts']:
             item = {'label': serie['name'], 
@@ -72,7 +74,31 @@ class RtlXL:
                         'mediatype': 'video'
                     }
             }
+            abstractKeylist.append(serie['key'])
             rtlitemlist.append(item)
+        # heeft dubbele items, maar ook andere (RTL Nieuws)
+        req = self.__set_request_headers(
+            'https://xlapi.rtl.nl/version=1/fun=az/model=avod')
+        response = urlopen(req)
+        jsonstring = response.read()
+        response.close()
+        json_data = json.loads(jsonstring)
+        for serie in json_data['abstracts']:
+            if serie['abstract_key'] not in abstractKeylist:
+                item = {'label': serie['name'], 
+                        'url': "http://www.rtl.nl/system/s4m/vfd/version=1/fun=abstract/d=pc/fmt=smooth/ak=%s/output=json/pg=1/" % serie['abstract_key'], #vies
+                        'art': {    'thumb': None,
+                                    'icon':  None,
+                                    'fanart': None
+                                },                        
+                        'video': {
+                            'title': serie['name'],
+                            'plot': self.__value_of_dict(serie, 'synopsis'),
+                            'studio': self.__value_of_dict(serie, 'station'),
+                            'mediatype': 'video'
+                        }
+                }            
+                rtlitemlist.append(item)        
         return sorted(rtlitemlist, key=lambda x: x['label'], reverse=False)
 
     def __items(self, url, alles, videotype):
