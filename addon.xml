@@ -19,4 +19,7 @@
     <description lang="en">Dutch RTLxl videos RTL4 / RTL5 / RTL8</description>
     <description lang="nl">RTLxl videos van RTL4 / RTL5 / RTL8</description>
   </extension>
+  <assets>
+    <icon>icon.png</icon>
+  </assets>
 </addon>
