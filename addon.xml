@@ -18,8 +18,8 @@
     <summary lang="nl">RTLxl - Bekijk RTLxl</summary>
     <description lang="en">Dutch RTLxl videos RTL4 / RTL5 / RTL8</description>
     <description lang="nl">RTLxl videos van RTL4 / RTL5 / RTL8</description>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
   </extension>
-  <assets>
-    <icon>icon.png</icon>
-  </assets>
 </addon>
