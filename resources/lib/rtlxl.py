@@ -101,7 +101,7 @@ class RtlXL:
                 rtlitemlist.append(item)        
         return sorted(rtlitemlist, key=lambda x: x['label'], reverse=False)
 
-    def __items(self, url, alles, videotype):
+    def __items(self, url, alles):
         req = self.__set_request_headers(url)
         response = urlopen(req)
         jsonstring = response.read()
@@ -112,8 +112,7 @@ class RtlXL:
         for material in json_data['material']:
             rtlitem = { 'label': material['title'],
                         'uuid': material['uuid'],
-                        'videotype': videotype,
-                        #'path': self.movie_trans(material['uuid'], videotype),
+                        # 'path': self.movie_trans(material['uuid']),
                         'classname': material['classname'],
                         'art': {    'thumb': cover_base_url + material['image'],
                                     'icon':  cover_base_url + material['image'],
@@ -162,7 +161,7 @@ class RtlXL:
         return item['classname'] == 'uitzending'
 
     def get_categories(self, url):
-        items = self.__items(url, True, 'adaptive')
+        items = self.__items(url, True)
         aantaluitzendingen = [
             item for item in items if self.__is_uitzending(item)]
         terug = list()
@@ -191,26 +190,18 @@ class RtlXL:
         # req.add_header('Accept-Encoding', 'utf-8')
         return req
 
-    def movie_trans(self, uuid, videotype):
-        url = 'http://www.rtl.nl/system/s4m/vfd/version=2/fun=abstract/uuid=' + \
-            uuid + '/fmt=' + videotype + '/output=json/'
-        if videotype == 'progressive':
-            url = 'http://www.rtl.nl/system/s4m/vfd/version=2/d=a2t/fun=abstract/uuid=' + \
-                uuid + '/fmt=' + videotype + '/output=json/'
+    def movie_trans(self, uuid):
+        url = 'https://api.rtl.nl/watch/play/api/play/xl/%s?device=web&format=hls' % uuid
         req = self.__set_request_headers(url)
         response = urlopen(req)
         jsonstring = response.read()
         response.close()
         json_data = json.loads(jsonstring)
-        if json_data['meta']['nr_of_videos_total'] == 0:
-            return ''
-        movie = json_data['meta']['videohost'] + \
-            json_data['material'][0]['videopath']
-        #referer en user-agent als header meesturen (anders werkt het niet meer)
-        return movie + '|Referer='+movie+'&User-Agent=Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0'
+        movie = json_data['manifest']
+        return movie
 
-    def get_items(self, url, alles, videotype):
-        items = self.__items(url, alles, videotype)
+    def get_items(self, url, alles):
+        items = self.__items(url, alles)
         if (alles):
             return items
         return [item for item in items if self.__is_uitzending(item)]

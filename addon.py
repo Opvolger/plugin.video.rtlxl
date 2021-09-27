@@ -56,7 +56,7 @@ def router(paramstring):
             show_afleveringen(params['url'])
             setMediaView()
         elif params['action'] == 'play':
-            play_video(params['uuid'], params['videotype'])
+            play_video(params['uuid'])
         else:
             raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
     else:
@@ -97,22 +97,11 @@ def show_keuze(url):
 
 def show_afleveringen(url):
     ##alleen afleveringen weergeven
-    videotype = get_videotype(xbmcplugin.getSetting(_handle, "videotype"))
-    return show_items(rtlxl.get_items(url, False, videotype), 'Afleveringen')
+    return show_items(rtlxl.get_items(url, False), 'Afleveringen')
 
 def show_alles(url):    
     ##alles weergeven
-    videotype = get_videotype(xbmcplugin.getSetting(_handle, "videotype"))
-    return show_items(rtlxl.get_items(url, True, videotype), 'Alles')
-
-def get_videotype(switchnum):
-    if switchnum == '0':
-        return 'adaptive'
-    if switchnum == '1':
-        return 'progressive'
-    if switchnum == '2':
-        return 'smooth'
-    return 'adaptive'
+    return show_items(rtlxl.get_items(url, True), 'Alles')
 
 def show_items(opgehaaldeitemsclass, category):
     xbmcplugin.setPluginCategory(_handle, category)
@@ -124,15 +113,15 @@ def show_items(opgehaaldeitemsclass, category):
         list_item.setArt(item['art'])
         list_item.setInfo('video', item['video'])
         list_item.setProperty('IsPlayable', 'true')
-        url = get_url(action='play', uuid=item['uuid'], videotype=item['videotype'])
+        url = get_url(action='play', uuid=item['uuid'])
         is_folder = False
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_DATE)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.endOfDirectory(_handle)
 
-def play_video(uuid, videotype):
-    play_item = xbmcgui.ListItem(path=rtlxl.movie_trans(uuid, videotype))
+def play_video(uuid):
+    play_item = xbmcgui.ListItem(path=rtlxl.movie_trans(uuid))
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 
 if __name__ == '__main__':
