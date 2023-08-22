@@ -193,12 +193,25 @@ class RtlXL:
     def movie_trans(self, uuid):
         url = 'https://api.rtl.nl/watch/play/api/play/xl/%s?device=web&format=hls' % uuid
         req = self.__set_request_headers(url)
+        req.add_header("Authorization", "Bearer {}".format(self.get_movie_token()))
         response = urlopen(req)
         jsonstring = response.read()
         response.close()
         json_data = json.loads(jsonstring)
         movie = json_data['manifest']
         return movie
+
+    def get_movie_token(self):
+        realm = "rtlxl.nl"
+        api_key = "3_R0XjstXd4MpkuqdK3kKxX20icLSE3FB27yQKl4zQVjVpqmgSyRCPKKLGdn5kjoKq"
+        tokenurl = "https://api.rtl.nl/rtlxl/token/api/2/token"
+
+        req = self.__set_request_headers(tokenurl)
+        response = urlopen(req)
+        jsonstring = response.read()
+        response.close()
+        json_data = json.loads(jsonstring)
+        return json_data['accessToken']
 
     def get_items(self, url, alles):
         items = self.__items(url, alles)
